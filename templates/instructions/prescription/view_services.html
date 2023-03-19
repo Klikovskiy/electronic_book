@@ -1,0 +1,154 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-4">{{ view_services.services_name }}</h1>
+    <div class="card-body">
+        {% if perms.book_instructions.add_prescription and request.user.position_id == view_services.subdivision.subdivision_specialist_id %}
+
+
+
+            <a class="nav-link  text-white" href="{% url 'book_instructions:create_prescription' pk=view_services.subdivision_id service_id=services_pk %}">
+                <button type="button" class="btn btn-primary">Добавить предписание </button>
+            </a>
+        {% endif %}
+        <hr>
+
+        <div class="container">
+            <form action="">
+                <div class="row">
+                    <div class="col-sm">
+                        <select class="form-select" aria-label="Участок предписания" id="region" name="region">
+                            <option selected value=''>- Участок -</option>
+                            {% for region in regions %}
+                                <option value="{{ region.pk }}">{{ region }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm">
+
+                        <select class="form-select" aria-label="Тип предписания" id="type" name="type">
+                            <option selected value=''>- Тип -</option>
+                            {% for type in types %}
+                                <option value="{{ type.pk }}">{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm">
+                        <input type="date" name="star_date"
+                               class="form-control picker__input"
+                               id="star_date">
+                    </div>
+                     <div class="col-sm">
+                        <input type="date" name="end_date"
+                               class="form-control picker__input"
+                               id="end_date">
+                    </div>
+                    <div class="col-sm">
+                         <button type="submit" class="btn btn-primary">Найти</button>
+                         <a class="btn btn-warning" href="{% url 'book_instructions:view_services' pk=services_pk %}">Сбросить</a>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <br>
+        {% if object_list %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    Книга предписаний
+                </div>
+                <div class="card-body">
+                    <div class="datatable-wrapper datatable-loading no-footer sortable searchable fixed-columns">
+
+                        <div class="datatable-container">
+                            <table id="datatablesSimple" class="datatable-table">
+                                <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Участок</th>
+                                    <th>Подразделение</th>
+                                    <th>Автор</th>
+                                    <th>Тип</th>
+                                    <th>Файл</th>
+                                    <th>Дата создания</th>
+                                    <th>Статус</th>
+                                    <th>Функции</th>
+                                </thead>
+                                <tbody>
+                                {% for prescription in object_list  %}
+                                    <tr>
+                                        <td>
+                                            {% if perms.book_instructions.view_prescription %}
+                                            <a href="{% url 'book_instructions:view_prescription' pk=prescription.pk %}">
+                                                {{ prescription.prescription_name|truncatechars:30 }}
+                                            </a>
+                                            {% else %}
+                                                {{ prescription.prescription_name|truncatechars:30 }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ prescription.region }}</td>
+                                        <td>{{ prescription.subdivision|truncatechars:20  }}</td>
+                                        <td>{{ prescription.author.first_name }} {{ prescription.author.last_name }}</td>
+                                        <td>{{ prescription.type_prescription }}</td>
+                                        <td>
+                                            <a href="{{ prescription.prescription_media.url }}" target="_blank">Просмотреть</a>
+                                        </td>
+                                        <td>{{ prescription.date_create }}</td>
+                                        <td>
+                                            {% if status_executions|get_item:prescription.pk == True %}
+                                                Выполнено
+                                            {% else %}
+                                                В работе
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            {% if perms.book_instructions.change_prescription %}
+                                                <a href="{% url 'book_instructions:edit_prescription' pk=prescription.pk service_id=services_pk %}"><img src="{% static 'img/edit.png'%}" alt="Редактировать предписание"/></a>
+                                            {% endif %}
+                                            {% if perms.book_instructions.add_orders %}
+                                                <a href="{% url 'book_instructions:create_orders' pk=services_pk type_id=prescription.type_prescription.pk subdivision_id=prescription.subdivision.pk  orders_id=prescription.pk %}"><img src="{% static 'img/add_order.png'%}" alt="Добавить распоряжение"/></a>
+                                            {% endif %}
+                                            {% if perms.book_instructions.delete_prescription %}
+                                                <a href="{% url 'book_instructions:del_prescription' pk=prescription.pk service_id=services_pk %}"><img src="{% static 'img/remove.png'%}" alt="Удалить предписание"/></a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         <br>
+    <div class="col-12">
+      {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+          {% endif %}
+            {% for page in page_obj.paginator.page_range %}
+               {% if page_obj.number == page %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+               {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a>
+               {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            У вас нет созданных или доступных предписаний.
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

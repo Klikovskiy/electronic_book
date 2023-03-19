@@ -1,0 +1,32 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-4">Редактирование отчета</h1>
+<div class="card">
+    <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+        <div class="form-outline mb-4">
+            {{ form.order_execution_description.label }}
+            {{ form.order_execution_description }}
+        </div>
+        <div class="error-form">
+            {% if form.order_execution_description.errors %}
+            {{ form.order_execution_description.errors }}
+            {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+            {{ form.orde_exec_media }}
+        </div>
+        <br>
+     <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+    </form>
+    </div>
+</div>
+
+
+<script src="{% static 'js/order_form.js' %}"></script>
+{% endblock %}

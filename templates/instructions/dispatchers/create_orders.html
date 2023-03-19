@@ -1,0 +1,48 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-4">Создание нового распоряжения</h1>
+<div class="card">
+    <div class="card-body">
+    <form method="post" >
+    {% csrf_token %}
+
+       <div class="form-outline mb-4">
+            {{ form.name.label }}
+            {{ form.name }}
+        </div>
+        <div class="error-form">
+            {% if form.name.errors %}
+            {{ form.name.errors }}
+            {% endif %}
+        </div>
+
+
+        <div class="form-outline mb-4">
+            {{ form.control_date.label }}
+            {{ form.control_date }}
+        </div>
+        <div class="error-form">
+            {% if form.control_date.errors %}
+            {{ form.control_date.errors }}
+            {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+            {{ form.responsible_person.label }}
+            {{ form.responsible_person }}
+        </div>
+        <div class="error-form">
+            {% if form.responsible_person.errors %}
+            {{ form.responsible_person.errors }}
+            {% endif %}
+        </div>
+
+
+
+     <button type="submit" class="btn btn-primary">Создать распоряжение</button>
+    </form>
+    </div>
+</div>
+{% endblock %}

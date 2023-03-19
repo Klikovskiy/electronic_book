@@ -1,0 +1,27 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+    <title>Форма вход</title>
+{% endblock %}
+
+{% block user_content %}
+    <form method="post" action="{% url 'book_user:login' %}">
+        {% csrf_token %}
+        {% for element_form in form %}
+            <div class="form-outline mb-4">
+                 {{ element_form }}
+            </div>
+        {% endfor %}
+        <div class="error-form">
+            {% if form.non_field_errors %}
+                {{ form.non_field_errors }}
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    <hr>
+    <div>
+        <a href="{% url 'reset_password' %}">или восстановить пароль</a>
+    </div>
+{% endblock %}

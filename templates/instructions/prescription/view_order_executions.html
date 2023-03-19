@@ -1,0 +1,63 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+        <title>Создание отчета по предписанию</title>
+{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Просмотр отчета</h1>
+    <div class="card bg-light mb-3">
+    <div class="card-body">
+        {% if view_order_executions.order_execution_description %}
+            <div class="alert alert-primary" role="alert">
+               {{ view_order_executions.order_execution_description|safe|linebreaksbr}}
+            </div>
+        {% else %}
+        <div class="alert alert-warning" role="alert">
+            Нет <b>текста</b> отчета
+        </div>
+        {% endif %}
+
+        {% if view_order_executions.orde_exec_media %}
+            <p class="text-center"><a href="{{ view_order_executions.orde_exec_media.url }}" download><button type="button" class="btn btn-info">Скачать файл отчета</button></a></p>
+        {% else %}
+        <div class="alert alert-warning" role="alert">
+            Нет <b>файла</b> отчета
+        </div>
+        {% endif %}
+    </div>
+    <div class="card-header">
+        <b>{{ view_prescription.prescription_name }}</b>
+    </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item"><b>Статус выполнения:</b> {{ view_order_executions.get_execution_status_display }}</li>
+    <li class="list-group-item"><b>Распоряжение:</b> {{ view_order_executions.order_execution }}</li>
+    <li class="list-group-item"><b>Дата последнего изменения:</b> {{ view_order_executions.date_update}}</li>
+  </ul>
+  <div class="card-footer text-muted">
+    {{ view_prescription.date_create }}
+  </div>
+</div>
+
+{% if view_order_executions.execution_status == 'FINALIZE' %}
+    {% if edit_button %}
+        <p class="text-center">
+            <a href="{% url 'book_instructions:edit_executions' pk=orders_executions_pk presc_id=view_order_executions.order_execution.pk %}">
+                <button type="button" class="btn btn-primary">Доработать отчет</button>
+            </a>
+        </p>
+    {% endif %}
+{% endif %}
+
+{% if view_order_executions.execution_status == 'CHECK' %}
+    <p class="text-center">
+        {% if finalize_button %}
+            <a href="{% url 'book_instructions:executions_ready' executions_id=view_order_executions.pk order_id=view_order_executions.order_execution.pk %}">
+                <button type="button" class="btn btn-success">Выполнено</button></a>
+             <a href="{% url 'book_instructions:executions_finalize' executions_id=view_order_executions.pk order_id=view_order_executions.order_execution.pk %}">
+                 <button type="button" class="btn btn-warning">На доработку</button></a>
+        {% endif %}
+    </p>
+{% endif %}
+{% endblock %}

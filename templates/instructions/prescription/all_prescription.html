@@ -1,0 +1,95 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-4">Список доступных предписаний</h1>
+    <div class="card-body">
+    <a class="nav-link  text-white" href="{% url 'book_instructions:create_prescription' %}">
+        <button type="button" class="btn btn-primary">Добавить предписание</button>
+    </a>
+    <hr>
+    {% if object_list %}
+        <div class="card mb-4">
+            <div class="card-header">
+                Книга предписаний1
+            </div>
+            <div class="card-body">
+                <div class="datatable-wrapper datatable-loading no-footer sortable searchable fixed-columns">
+
+                    <div class="datatable-container">
+                        <table id="datatablesSimple" class="datatable-table">
+                            <thead>
+                            <tr>
+                                <th>Название</th>
+                                <th>Участок</th>
+                                <th>Подразделение</th>
+                                <th>Автор</th>
+                                <th>Тип</th>
+                                <th>Файл</th>
+                                <th>Дата создания</th>
+                                <th>Функции</th>
+                            </thead>
+                            <tbody>
+                            {% for prescription in object_list %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'book_instructions:view_prescription' pk=prescription.pk %}">
+                                            {{ prescription.prescription_name|truncatechars:30 }}
+                                        </a>
+                                    </td>
+                                    <td>{{ prescription.region }}</td>
+                                    <td>{{ prescription.subdivision|truncatechars:20  }}</td>
+                                    <td>{{ prescription.author }}</td>
+                                    <td>{{ prescription.type_prescription }}</td>
+                                    <td>
+                                        <a href="{{ prescription.prescription_media.url }}" target="_blank">Просмотреть</a>
+                                    </td>
+                                    <td>{{ prescription.date_create }}</td>
+                                    <td>
+                                        <a href="{% url 'book_instructions:edit_prescription' pk=prescription.pk %}"><img src="{% static 'img/edit.png'%}" alt="Редактировать предписание"/></a>
+                                        <a href="{% url 'book_instructions:del_prescription' pk=prescription.pk %}"><img src="{% static 'img/remove.png'%}" alt="Удалить предписание"/></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+     <br>
+<div class="col-12">
+  {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+
+      {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+      {% endif %}
+
+        {% for page in page_obj.paginator.page_range %}
+           {% if page_obj.number == page %}
+                <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+           {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a>
+           {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        {% endif %}
+
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            У вас нет созданных или доступных предписаний.
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

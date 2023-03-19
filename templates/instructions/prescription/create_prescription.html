@@ -1,0 +1,93 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+        <title>Создание нового предписания</title>
+{% endblock %}
+
+
+{% block content %}
+
+{% if request.user.position == subdivision.subdivision_specialist %}
+    <h1 class="mt-4">Создание нового предписания</h1>
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+               <div class="form-outline mb-4">
+                    {{ form.prescription_name.label }}
+                    {{ form.prescription_name }}
+               </div>
+                <div class="error-form">
+                    {% if form.prescription_name.errors %}
+                    {{ form.prescription_name.errors }}
+                    {% endif %}
+                </div>
+
+                <div class="form-outline mb-4">
+                    {{ form.region.label }}
+                    {{ form.region }}
+                </div>
+                <div class="error-form">
+                    {% if form.region.errors %}
+                    {{ form.region.errors }}
+                    {% endif %}
+                </div>
+
+                <div class="form-outline mb-4">
+                    {{ form.type_prescription.label }}
+                    {{ form.type_prescription }}
+                </div>
+                <div class="error-form">
+                    {% if form.type_prescription.errors %}
+                    {{ form.type_prescription.errors }}
+                    {% endif %}
+                </div>
+
+                <div class="file-upload">
+                    <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Файл предписания
+                    </button>
+                    <div class="image-upload-wrap">
+                        {{ form.prescription_media }}
+                        <div class="drag-text">
+                            <h3>Перетащите файл или нажмите кнопку «Файл предписания».</h3>
+                        </div>
+                    </div>
+                    <div class="file-upload-content">
+                        <img class="file-upload-image" src="#"/>
+                        <div class="image-title-wrap">
+                            <button type="button" onclick="removeUpload()" class="remove-image">
+                                Отменить <span class="image-title">Загруженное изображение</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-form">
+                     {% if form.prescription_media.errors %}
+                {{ form.prescription_media.errors }}
+                {% endif %}
+                </div>
+
+                <div class="form-outline mb-4">
+                    {{ form.author.label }}
+                    {{ form.author }}
+                </div>
+                <div class="error-form">
+                    {% if form.author.errors %}
+                    {{ form.author.errors }}
+                    {% endif %}
+                </div>
+
+             <button type="submit" class="btn btn-primary">Отправить предписание</button>
+            </form>
+        </div>
+    </div>
+{% else %}
+<br>
+<div class="alert alert-danger" role="alert">
+  Вы не "Специалист" этого подразделения!
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+        <title>Предписание - {{ view_prescription_dispatchers.prescription_name }}</title>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="card bg-light mb-3">
+    <div class="card-body">
+        <img src="{{ view_prescription_dispatchers.prescription_media.url }}" width="500px" height="500px" alt="{{ view_prescription_dispatchers.prescription_name }}" class="img-thumbnail rounded mx-auto d-block">
+        <p class="text-center"><a href="{{ view_prescription_dispatchers.prescription_media.url }}" target="_blank">Развернуть</a></p>
+    </div>
+    <div class="card-header">
+        <b>{{ view_prescription.prescription_name }}</b>
+        <b>{{ view_prescription.id }}</b>
+    </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item"><b>Участок:</b> {{ view_prescription_dispatchers.region }}</li>
+    <li class="list-group-item"><b>Тип:</b> {{ view_prescription_dispatchers.type_prescription }}</li>
+    <li class="list-group-item"><b>Автор:</b> {{ view_prescription_dispatchers.author.first_name }} {{ view_prescription_dispatchers.author.last_name }}</li>
+  </ul>
+  <div class="card-footer text-muted">
+    {{ view_prescription_dispatchers.date_create }}
+  </div>
+</div>
+
+<div class="card-body">
+        {% if perms.book_instructions.add_orders and request.user.engineer.all.0 %}
+            <a class="nav-link  text-white" href="">
+                <p class="text-center"><a href="{% url 'book_instructions:create_orders_dispatcher' pk=view_prescription_dispatchers.pk %}"><button type="button" class="btn btn-primary">Составить распоряжение</button></a></p>
+            </a>
+        {% endif %}
+        <hr>
+
+        {% if object_list %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    Распоряжения
+                </div>
+                <div class="card-body">
+                    <div class="datatable-wrapper datatable-loading no-footer sortable searchable fixed-columns">
+
+                        <div class="datatable-container">
+                            <table id="datatablesSimple" class="datatable-table">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Распоряжение</th>
+                                    <th>Контрольная дата</th>
+                                    <th>Ответственное лицо</th>
+                                    <th>Статус ознакомления</th>
+                                    <th>Дата ознакомления</th>
+                                    <th>Статус отчета</th>
+                                    <th>Функции</th>
+                                </thead>
+                                <tbody>
+                                {% for order in object_list %}
+                                    {% if order.responsible_person_id == request.user.id or subdivision_engineer_id == request.user.id or request.user.chief_status  %}
+                                        <tr>
+                                            <td>{{ order.pk|truncatechars:30 }}</td>
+                                            <td>{{ order.name|truncatechars:30 }}</td>
+                                            <td>{{ order.control_date  }}</td>
+                                            <td>{{ order.responsible_person.first_name }} {{ order.responsible_person.last_name }}</td>
+                                            <td>
+
+                                                {% if order.familiarization %}
+                                                    <img src="{% static 'img/ready.png'%}" alt="Ознакомлен с распоряжением"/>
+                                                {% else %}
+                                                <img src="{% static 'img/not_ready.png'%}" alt="Не ознакомлен с распоряжением"/>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if order.familiarization_date %}
+                                                    {{ order.familiarization_date }}
+                                                {% else %}
+                                                    —
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% for order_stat in order.order_execution.all %}
+                                                    {{ order_stat.get_execution_status_display }}
+                                                {% empty %}
+                                                    —
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                {% if perms.book_instructions.change_orders and perms.book_instructions.view_orders and perms.book_instructions.view_orderexecutions and perms.book_instructions.change_orderexecutions and perms.book_instructions.add_orderexecutions or request.user.chief_status %}
+                                                    {% if not order.familiarization and order.responsible_person.id == request.user.id and not request.user.chief_status %}
+                                                         <a href="{% url 'book_instructions:order_status_dispatcher' orders_id=order.pk presc_id=view_prescription_dispatchers.pk %}"><button type="button" class="btn btn-outline-success btn-sm">Ознакомлен</button></a>
+                                                    {% endif %}
+                                                    {% if order.familiarization %}
+                                                        <a href="{% url 'book_instructions:order_executions' order_id=order.pk presc_id=view_prescription_dispatchers.pk %}"><button type="button" class="btn btn-outline-info btn-sm">Отчет</button></a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <div class="alert alert-warning" role="alert">
+                                                        Нет доступа к отчету.
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         <br>
+    <div class="col-12">
+      {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+          {% endif %}
+            {% for page in page_obj.paginator.page_range %}
+               {% if page_obj.number == page %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+               {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page }}">{{ page }}</a>
+               {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            Распоряжения отсутствуют или у вас нет к ним доступа.
+        </div>
+    {% endif %}
+</div>
+
+
+
+{% endblock %}

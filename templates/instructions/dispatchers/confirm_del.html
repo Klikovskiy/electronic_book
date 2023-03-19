@@ -1,0 +1,17 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-4">Подтвердите удаление</h1>
+<div class="card-body">
+    <form method="post">{% csrf_token %}
+        <div class="alert alert-warning" role="alert">
+          <p>Вы действительно хотите удалить <b>"{{ object }}"</b> ?</p>
+        </div>
+        <button type="submit" class="btn btn-danger">Да, удалить</button>
+
+        <a href="{% url 'book_instructions:view_dispatchers' %}"><button type="button" class="btn btn-primary">Вернутся к предписаниям</button></a>
+    </form>
+</div>
+
+{% endblock %}

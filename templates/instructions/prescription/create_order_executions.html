@@ -1,0 +1,65 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+        <title>Создание отчета по предписанию</title>
+{% endblock %}
+
+{% block content %}
+
+
+<h1 class="mt-4">Создание отчета по распоряжению</h1>
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+
+            <div class="form-outline mb-4">
+                {{ form.order_execution_description.label }}
+                {{ form.order_execution_description }}
+            </div>
+            <div class="error-form">
+                {% if form.order_execution_description.errors %}
+                {{ form.order_execution_description.errors }}
+                {% endif %}
+            </div>
+
+            <div class="file-upload">
+                <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Файл отчета
+                </button>
+                <div class="image-upload-wrap">
+                    {{ form.orde_exec_media }}
+                    <div class="drag-text">
+                        <h3>Перетащите файл или нажмите кнопку «Файл отчета».</h3>
+                    </div>
+                </div>
+
+                <div class="file-upload-content">
+                    <br>
+                    <div class="alert alert-warning" role="alert">
+                        <p>Вы хотите загрузить файл:</p>
+                        <img src="{% static 'img/file_load_50.png'%}" alt="Загрузка файла"/>
+                        «<b><span class="image-title"></span></b>»
+                    </div>
+                    <div class="image-title-wrap">
+                        <button type="button" onclick="removeUpload()" class="remove-image">
+                            Отменить <span class="image-title">Загруженное изображение</span>
+                        </button>
+                    </div>
+                </div>
+                <br>
+                 {% if form.orde_exec_media.errors %}
+                     <div class="alert alert-danger" role="alert">
+                        {{ form.orde_exec_media.errors }}
+                     </div>
+                 {% endif %}
+            </div>
+
+         <button type="submit" class="btn btn-primary">Создать отчет</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/order_form.js' %}"></script>
+{% endblock %}

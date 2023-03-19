@@ -1,0 +1,59 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="mt-4">Редактирование предписания</h1>
+<div class="card">
+    <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+       <div class="form-outline mb-4">
+            {{ form.prescription_name.label }}
+            {{ form.prescription_name }}
+        </div>
+        <div class="error-form">
+            {% if form.prescription_name.errors %}
+            {{ form.prescription_name.errors }}
+            {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+            {{ form.region.label }}
+            {{ form.region }}
+        </div>
+        <div class="error-form">
+            {% if form.region.errors %}
+            {{ form.region.errors }}
+            {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+            {{ form.type_prescription.label }}
+            {{ form.type_prescription }}
+        </div>
+        <div class="error-form">
+            {% if form.type_prescription.errors %}
+            {{ form.type_prescription.errors }}
+            {% endif %}
+        </div>
+
+        <div class="form-outline mb-4">
+            {{ form.prescription_media }}
+        </div>
+
+        <div class="form-outline mb-4">
+            {{ form.author.label }}
+            {{ form.author }}
+        </div>
+        <div class="error-form">
+            {% if form.author.errors %}
+            {{ form.author.errors }}
+            {% endif %}
+        </div>
+
+     <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+    </form>
+    </div>
+</div>
+{% endblock %}

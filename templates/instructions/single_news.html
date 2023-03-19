@@ -1,0 +1,25 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<h1 class="mt-4" >{{ single_news.titles }}</h1>
+<div class="card">
+    <div class="card-body">
+        {% if single_news.news_picture %}
+            <p class="text-center">
+                <img src="{{ single_news.news_picture.url }}"  alt="{{ single_news.titles }}" class="img-thumbnail">
+            </p>
+        {% endif %}
+
+        <p class="text-justify">
+            {{ single_news.full_content|safe|linebreaksbr }}
+        </p>
+
+        <p class="font-weight-light">
+            {{ single_news.date_created }}
+        </p>
+    </div>
+</div>
+{% endblock %}

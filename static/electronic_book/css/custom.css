@@ -1,0 +1,7 @@
+.error-form li {
+    list-style-type: none; /* Убираем маркеры */
+    color: #ba2121;
+}
+.error-form ul {
+    padding-left: 0; /* Сдвигаем список влево */
+}

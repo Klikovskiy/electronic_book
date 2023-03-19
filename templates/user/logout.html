@@ -1,0 +1,11 @@
+{% extends 'user/user_base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+    <title>Выход из учетной записи</title>
+{% endblock %}
+
+{% block user_content %}
+    <b>Вы успешно вышли из учетной записи</b>
+    <p><a href="{% url 'book_user:login' %}">Для повторного входа</a></p>
+{% endblock %}

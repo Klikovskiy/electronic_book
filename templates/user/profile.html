@@ -1,0 +1,73 @@
+{% extends 'instructions/base.html' %}
+{% load static %}
+
+{% block title_user_content %}
+    <title>Редактирование профилия</title>
+{% endblock %}
+
+{% block content %}
+<br>
+{% if user_profile.pk == user.pk %}
+    <section style="background-color: #eee;">
+      <div class="container py-5">
+
+
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-body text-center">
+                <img src="{% static 'img/no_avatar.png' %}"  alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                <h5 class="my-3">{{ user_profile.first_name }} {{ user_profile.last_name }}</h5>
+                <a href="{% url 'change_password' %}"><button type="button" class="btn btn-primary">Сменить пароль</button></a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Имя Фамилия:</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">{{ user_profile.first_name }} {{ user_profile.last_name }}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Email:</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">{{ user_profile.email }}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Должность:</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">{{ user_profile.position }}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Подразделение:</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">{{ user_profile.subdivision }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </section>
+{% else %}
+    <div class="alert alert-danger" role="alert">
+      Вы не можете просматривать данные чужого профиля!
+    </div>
+{% endif %}
+{% endblock %}
