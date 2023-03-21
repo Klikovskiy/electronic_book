@@ -165,8 +165,8 @@ class CreateOrdersDispatcherForm(ModelForm):
     )
 
     responsible_person = forms.ModelChoiceField(
-        label='Название предписания',
-        queryset=BookUser.objects.all(),
+        label='Ответственное лицо',
+        queryset=BookUser.objects.filter(pk__in=Dispatchers.objects.values_list('services_person',)),
         widget=forms.Select(attrs={'class': 'form-control', })
     )
 

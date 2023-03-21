@@ -19,7 +19,7 @@ from book_instructions.forms import (CreatePrescriptionForm,
                                      CreateDispatcherPrescriptionForm)
 from book_instructions.models import (Prescription, Subdivision,
                                       Services, Orders, OrderExecutions,
-                                      PrescriptionTypes, Region, )
+                                      PrescriptionTypes, Region, Dispatchers, )
 from book_instructions.utils import sending_engineer, paginator
 from book_user.models import BookUser
 
@@ -660,6 +660,13 @@ class CreateDispatcherOrders(PermissionRequiredMixin,
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.prescription = Prescription.objects.get(pk=self.kwargs['pk'])
+        sending_engineer(request=self.request,
+                         user=obj.responsible_person,
+                         message_title='Поступило новое распоряжение',
+                         message_tex=f'Тип - {obj.name}, '
+                                     f'Предписание - {obj.prescription}, '
+                                     f'Контрольная дата - {obj.control_date}'
+                         )
         return super(CreateDispatcherOrders, self).form_valid(form)
 
     def get_success_url(self):
