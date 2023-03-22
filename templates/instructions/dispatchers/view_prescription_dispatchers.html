@@ -57,7 +57,7 @@
                                 </thead>
                                 <tbody>
                                 {% for order in object_list %}
-                                    {% if order.responsible_person_id == request.user.id or subdivision_engineer_id == request.user.id or request.user.chief_status  %}
+                                    {% if order.responsible_person_id == request.user.id or request.user.engineer.all.0 or request.user.chief_status  %}
                                         <tr>
                                             <td>{{ order.pk|truncatechars:30 }}</td>
                                             <td>{{ order.name|truncatechars:30 }}</td>

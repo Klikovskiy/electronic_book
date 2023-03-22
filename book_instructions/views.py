@@ -555,10 +555,45 @@ class DispatcherServices(PermissionRequiredMixin,
     paginate_by = 20
 
     def get_context_data(self, **kwargs):
-        dispatcher = Prescription.objects.filter(
-            dispatcher_user=self.request.user.dispatcher_user)
+        _search_vals = {}
+        region_request = self.request.GET.get('region')
+        type_request = self.request.GET.get('type')
+        star_date_request = self.request.GET.get('star_date')
+        end_date_request = self.request.GET.get('end_date')
+
+        if (region_request or type_request
+                or star_date_request
+                or end_date_request):
+            if region_request:
+                # участок
+                region = Region.objects.get(pk=int(region_request)).pk
+                _search_vals['region_id'] = region
+            if type_request:
+                # тип
+                presc_types = PrescriptionTypes.objects.get(
+                    pk=int(type_request)).pk
+                _search_vals['type_prescription_id'] = presc_types
+            if (self.request.GET.get('star_date')
+                    and self.request.GET.get('end_date')):
+                _search_vals['date_create__range'] = [
+                    self.request.GET.get('star_date'),
+                    self.request.GET.get('end_date')]
+
+            try:
+                dispatcher = Prescription.objects.filter(**_search_vals, dispatcher_user=self.request.user.dispatcher_user).exclude(dispatcher_user=None)
+            except ObjectDoesNotExist:
+                dispatcher = Prescription.objects.filter(**_search_vals,).exclude(dispatcher_user=None)
+        else:
+            try:
+                dispatcher = Prescription.objects.filter(
+                    dispatcher_user=self.request.user.dispatcher_user)
+            except ObjectDoesNotExist:
+                dispatcher = Prescription.objects.all().exclude(dispatcher_user=None)
+
         context = {
             'page_dispatcher': paginator(self.request, dispatcher),
+            'regions': Region.objects.all(),
+            'types': PrescriptionTypes.objects.all(),
         }
         context.update(kwargs)
 
@@ -606,7 +641,7 @@ class GetDispatcherPrescription(PermissionRequiredMixin,
                                 DetailView,
                                 MultipleObjectMixin):
     """
-    Просмотр предписания диспетчера.
+    Просмотр предписания диспетчера и Распоряжений.
     """
 
     permission_required = 'book_instructions.view_dispatchers'
@@ -618,15 +653,7 @@ class GetDispatcherPrescription(PermissionRequiredMixin,
 
     def get_context_data(self, **kwargs):
         orders = Orders.objects.filter(prescription_id=self.kwargs['pk'])
-
-        context = {
-            'subdivision_engineer_id': (self.request.user.dispatcher_user
-                                        .subdivision.get()
-                                        .subdivision_engineer_id),
-
-        }
-        context.update(kwargs)
-        return super().get_context_data(**context, object_list=orders)
+        return super().get_context_data(**kwargs, object_list=orders)
 
 
 @login_required
@@ -653,7 +680,7 @@ class CreateDispatcherOrders(PermissionRequiredMixin,
     Создание нового распоряжения диспетчеру.
     """
 
-    permission_required = 'book_instructions.add_orders'
+    permission_required = 'book_instructions.add_dispatchers'
     form_class = CreateOrdersDispatcherForm
     template_name = 'instructions/dispatchers/create_orders.html'
 

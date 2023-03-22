@@ -43,7 +43,7 @@
                     </div>
                     <div class="col-sm">
                          <button type="submit" class="btn btn-primary">Найти</button>
-                         <a class="btn btn-warning" href="">Сбросить</a>
+                         <a class="btn btn-warning" href="{% url 'book_instructions:view_dispatchers' %}">Сбросить</a>
                     </div>
                 </div>
             </form>
@@ -75,7 +75,7 @@
                                 {% for prescription in page_dispatcher  %}
                                     <tr>
                                         <td>
-                                            {% if perms.book_instructions.view_prescription %}
+                                            {% if perms.book_instructions.view_dispatchers %}
                                             <a href="{% url 'book_instructions:view_prescription_dispatchers' pk=prescription.pk %}">
                                                 {{ prescription.prescription_name|truncatechars:30 }}
                                             </a>
