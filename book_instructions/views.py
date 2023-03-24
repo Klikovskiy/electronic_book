@@ -256,7 +256,8 @@ class CreatePrescription(PermissionRequiredMixin,
                          message_title='Поступило новое предписание',
                          message_tex=f'Предписание - {obj.prescription_name}, '
                                      f'Участок - {obj.region}, '
-                                     f'Тип - {obj.type_prescription}'
+                                     f'Тип - {obj.type_prescription}, '
+                                     f'Дата создания - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
                          )
 
         return super(CreatePrescription, self).form_valid(form)
@@ -353,7 +354,8 @@ class CreateOrders(PermissionRequiredMixin,
                          message_title='Поступило новое распоряжение',
                          message_tex=f'Тип - {obj.name}, '
                                      f'Предписание - {obj.prescription}, '
-                                     f'Контрольная дата - {obj.control_date}'
+                                     f'Контрольная дата - {obj.control_date}, '
+                                     f'Дата создания - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
                          )
         return super(CreateOrders, self).form_valid(form)
 
@@ -692,7 +694,8 @@ class CreateDispatcherOrders(PermissionRequiredMixin,
                          message_title='Поступило новое распоряжение',
                          message_tex=f'Тип - {obj.name}, '
                                      f'Предписание - {obj.prescription}, '
-                                     f'Контрольная дата - {obj.control_date}'
+                                     f'Контрольная дата - {obj.control_date}, '
+                                     f'Дата создания - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
                          )
         return super(CreateDispatcherOrders, self).form_valid(form)
 
@@ -725,7 +728,8 @@ class CreateDispatcherPrescription(PermissionRequiredMixin,
                          message_title='Поступило новое предписание',
                          message_tex=f'Предписание - {obj.prescription_name}, '
                                      f'Участок - {obj.region}, '
-                                     f'Тип - {obj.type_prescription}'
+                                     f'Тип - {obj.type_prescription}, '
+                                     f'Дата создания - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
                          )
 
         return super(CreateDispatcherPrescription, self).form_valid(form)
