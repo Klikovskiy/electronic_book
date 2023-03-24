@@ -14,12 +14,10 @@ from django.views.generic.list import MultipleObjectMixin
 from book_instructions.forms import (CreatePrescriptionForm,
                                      EditPrescriptionForm, CreateOrdersForm,
                                      CreateOrderExecutionsForm,
-                                     UpdateOrderExecutionsForm,
-                                     CreateOrdersDispatcherForm,
-                                     CreateDispatcherPrescriptionForm)
+                                     UpdateOrderExecutionsForm)
 from book_instructions.models import (Prescription, Subdivision,
                                       Services, Orders, OrderExecutions,
-                                      PrescriptionTypes, Region, Dispatchers, )
+                                      PrescriptionTypes, Region, )
 from book_instructions.utils import sending_engineer, paginator
 from book_user.models import BookUser
 
@@ -256,7 +254,8 @@ class CreatePrescription(PermissionRequiredMixin,
                          message_title='Поступило новое предписание',
                          message_tex=f'Предписание - {obj.prescription_name}, '
                                      f'Участок - {obj.region}, '
-                                     f'Тип - {obj.type_prescription}'
+                                     f'Тип - {obj.type_prescription}, '
+                                     f'Дата создания - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
                          )
 
         return super(CreatePrescription, self).form_valid(form)
@@ -353,7 +352,8 @@ class CreateOrders(PermissionRequiredMixin,
                          message_title='Поступило новое распоряжение',
                          message_tex=f'Тип - {obj.name}, '
                                      f'Предписание - {obj.prescription}, '
-                                     f'Контрольная дата - {obj.control_date}'
+                                     f'Контрольная дата - {obj.control_date}, '
+                                     f'Дата создания - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
                          )
         return super(CreateOrders, self).form_valid(form)
 
@@ -555,45 +555,15 @@ class DispatcherServices(PermissionRequiredMixin,
     paginate_by = 20
 
     def get_context_data(self, **kwargs):
-        _search_vals = {}
-        region_request = self.request.GET.get('region')
-        type_request = self.request.GET.get('type')
-        star_date_request = self.request.GET.get('star_date')
-        end_date_request = self.request.GET.get('end_date')
+        dispatcher = Prescription.objects.filter(
+            pk__in=Orders.objects.filter(
+                responsible_person=self.request.user.id
+            ).values_list('prescription', ))
 
-        if (region_request or type_request
-                or star_date_request
-                or end_date_request):
-            if region_request:
-                # участок
-                region = Region.objects.get(pk=int(region_request)).pk
-                _search_vals['region_id'] = region
-            if type_request:
-                # тип
-                presc_types = PrescriptionTypes.objects.get(
-                    pk=int(type_request)).pk
-                _search_vals['type_prescription_id'] = presc_types
-            if (self.request.GET.get('star_date')
-                    and self.request.GET.get('end_date')):
-                _search_vals['date_create__range'] = [
-                    self.request.GET.get('star_date'),
-                    self.request.GET.get('end_date')]
-
-            try:
-                dispatcher = Prescription.objects.filter(**_search_vals, dispatcher_user=self.request.user.dispatcher_user).exclude(dispatcher_user=None)
-            except ObjectDoesNotExist:
-                dispatcher = Prescription.objects.filter(**_search_vals,).exclude(dispatcher_user=None)
-        else:
-            try:
-                dispatcher = Prescription.objects.filter(
-                    dispatcher_user=self.request.user.dispatcher_user)
-            except ObjectDoesNotExist:
-                dispatcher = Prescription.objects.all().exclude(dispatcher_user=None)
+        print()
 
         context = {
             'page_dispatcher': paginator(self.request, dispatcher),
-            'regions': Region.objects.all(),
-            'types': PrescriptionTypes.objects.all(),
         }
         context.update(kwargs)
 
@@ -621,41 +591,6 @@ class EditDispatcherPrescription(PermissionRequiredMixin,
         return kwargs
 
 
-class DelDispatcherPrescription(PermissionRequiredMixin,
-                                LoginRequiredMixin,
-                                DeleteView):
-    """
-    Удалить предписание диспетчера.
-    """
-
-    permission_required = 'book_instructions.delete_dispatchers'
-    model = Prescription
-    template_name = 'instructions/dispatchers/confirm_del.html'
-
-    def get_success_url(self):
-        return reverse_lazy('book_instructions:view_dispatchers')
-
-
-class GetDispatcherPrescription(PermissionRequiredMixin,
-                                LoginRequiredMixin,
-                                DetailView,
-                                MultipleObjectMixin):
-    """
-    Просмотр предписания диспетчера и Распоряжений.
-    """
-
-    permission_required = 'book_instructions.view_dispatchers'
-    model = Prescription
-    template_name = 'instructions/dispatchers/view_prescription_dispatchers.html'
-    context_object_name = 'view_prescription_dispatchers'
-    allow_empty = True
-    paginate_by = 20
-
-    def get_context_data(self, **kwargs):
-        orders = Orders.objects.filter(prescription_id=self.kwargs['pk'])
-        return super().get_context_data(**kwargs, object_list=orders)
-
-
 @login_required
 @permission_required(
     'book_instructions.change_orders',
@@ -671,61 +606,3 @@ def orders_acquainted_dispatcher(request, orders_id, presc_id):
         orders.update(familiarization=True)
     return redirect('book_instructions:view_prescription_dispatchers',
                     pk=presc_id)
-
-
-class CreateDispatcherOrders(PermissionRequiredMixin,
-                             LoginRequiredMixin,
-                             CreateView):
-    """
-    Создание нового распоряжения диспетчеру.
-    """
-
-    permission_required = 'book_instructions.add_dispatchers'
-    form_class = CreateOrdersDispatcherForm
-    template_name = 'instructions/dispatchers/create_orders.html'
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.prescription = Prescription.objects.get(pk=self.kwargs['pk'])
-        sending_engineer(request=self.request,
-                         user=obj.responsible_person,
-                         message_title='Поступило новое распоряжение',
-                         message_tex=f'Тип - {obj.name}, '
-                                     f'Предписание - {obj.prescription}, '
-                                     f'Контрольная дата - {obj.control_date}'
-                         )
-        return super(CreateDispatcherOrders, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('book_instructions:view_dispatchers')
-
-
-class CreateDispatcherPrescription(PermissionRequiredMixin,
-                                   LoginRequiredMixin,
-                                   CreateView):
-    """
-    Создание нового предписания диспетчеру.
-    """
-
-    permission_required = 'book_instructions.add_dispatchers'
-    form_class = CreateDispatcherPrescriptionForm
-    template_name = 'instructions/dispatchers/create_dispatchers_prescription.html'
-
-    def get_success_url(self):
-        return reverse_lazy('book_instructions:view_dispatchers')
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.author = self.request.user
-
-        sending_engineer(request=self.request,
-                         user=BookUser.objects.get(
-                             pk=obj.dispatcher_user.services_person_id)
-                         ,
-                         message_title='Поступило новое предписание',
-                         message_tex=f'Предписание - {obj.prescription_name}, '
-                                     f'Участок - {obj.region}, '
-                                     f'Тип - {obj.type_prescription}'
-                         )
-
-        return super(CreateDispatcherPrescription, self).form_valid(form)

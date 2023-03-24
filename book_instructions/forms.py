@@ -71,7 +71,7 @@ class EditPrescriptionForm(ModelForm):
         fields = ('prescription_name', 'region',
                   'type_prescription', 'prescription_media')
 
-
+from django.db.models import Q
 class CreateOrdersForm(ModelForm):
     """
     Форма создание нового распоряжения.
@@ -88,8 +88,7 @@ class CreateOrdersForm(ModelForm):
             pk=self.type_id).types.all()
         self.fields['responsible_person'].widget = forms.Select(
             attrs={'class': 'form-control', })
-        self.fields['responsible_person'].queryset = BookUser.objects.filter(
-            subdivision_id=self.subdivision_id)
+        self.fields['responsible_person'].queryset = BookUser.objects.filter(Q(subdivision_id=self.subdivision_id) | Q(pk__in=Dispatchers.objects.values_list('services_person',)))
 
     control_date = forms.DateField(
         label='Контрольная дата выполнения',

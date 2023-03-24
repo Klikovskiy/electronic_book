@@ -4,51 +4,6 @@
 {% block content %}
 <h1 class="mt-4">{{ view_services.services_name }}</h1>
     <div class="card-body">
-        {% if perms.book_instructions.add_dispatchers and request.user.engineer.all.0 %}
-            <a class="nav-link  text-white" href="{% url 'book_instructions:create_dispatcher_prescription' %}">
-                <button type="button" class="btn btn-primary">Добавить предписание </button>
-            </a>
-        {% endif %}
-        <hr>
-
-        <div class="container">
-            <form action="">
-                <div class="row">
-                    <div class="col-sm">
-                        <select class="form-select" aria-label="Участок предписания" id="region" name="region">
-                            <option selected value=''>- Участок -</option>
-                            {% for region in regions %}
-                                <option value="{{ region.pk }}">{{ region }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-sm">
-
-                        <select class="form-select" aria-label="Тип предписания" id="type" name="type">
-                            <option selected value=''>- Тип -</option>
-                            {% for type in types %}
-                                <option value="{{ type.pk }}">{{ type }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-sm">
-                        <input type="date" name="star_date"
-                               class="form-control picker__input"
-                               id="star_date">
-                    </div>
-                     <div class="col-sm">
-                        <input type="date" name="end_date"
-                               class="form-control picker__input"
-                               id="end_date">
-                    </div>
-                    <div class="col-sm">
-                         <button type="submit" class="btn btn-primary">Найти</button>
-                         <a class="btn btn-warning" href="{% url 'book_instructions:view_dispatchers' %}">Сбросить</a>
-                    </div>
-                </div>
-            </form>
-
-        </div>
         <br>
         {% if page_dispatcher %}
             <div class="card mb-4">
@@ -69,7 +24,6 @@
                                     <th>Файл</th>
                                     <th>Дата создания</th>
                                     <th>Статус</th>
-                                    <th>Функции</th>
                                 </thead>
                                 <tbody>
                                 {% for prescription in page_dispatcher  %}
@@ -95,18 +49,6 @@
                                                 Выполнено
                                             {% else %}
                                                 В работе
-                                            {% endif %}
-                                        </td>
-
-                                        <td>
-                                            {% if perms.book_instructions.change_prescription %}
-                                                <a href="{% url 'book_instructions:edit_dispatchers' pk=prescription.pk %}"><img src="{% static 'img/edit.png'%}" alt="Редактировать предписание"/></a>
-                                            {% endif %}
-                                            {% if perms.book_instructions.add_orders %}
-                                                <a href="{% url 'book_instructions:create_orders_dispatcher' pk=prescription.pk %}"><img src="{% static 'img/add_order.png'%}" alt="Добавить распоряжение"/></a>
-                                            {% endif %}
-                                            {% if perms.book_instructions.delete_prescription %}
-                                                <a href="{% url 'book_instructions:del_dispatchers' pk=prescription.pk %}"><img src="{% static 'img/remove.png'%}" alt="Удалить предписание"/></a>
                                             {% endif %}
                                         </td>
                                     </tr>

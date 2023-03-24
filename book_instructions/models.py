@@ -179,14 +179,6 @@ class Prescription(models.Model):
                                  null=True,
                                  )
 
-    dispatcher_user = models.ForeignKey(
-        'Dispatchers',
-        null=True, blank=True,
-        verbose_name='Какому диспетчеру',
-        on_delete=models.CASCADE,
-        related_name='dispatcher_prescription'
-    )
-
     date_create = models.DateTimeField(auto_now_add=True,
                                        verbose_name='Дата создания')
 

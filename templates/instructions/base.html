@@ -70,7 +70,7 @@
                                 {% general_menu request %}
                              </nav>
 
-                             {% if request.user.dispatcher_user or request.user.engineer.all.0 %}
+                             {% if request.user.dispatcher_user %}
                                  <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="{% url 'book_instructions:view_dispatchers' %}">Диспетчер</a>
                                  </nav>

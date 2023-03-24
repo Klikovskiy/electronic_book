@@ -9,12 +9,7 @@ from book_instructions.views import (HomePage, PrescriptionList,
                                      executions_finalize, EditOrderExecutions,
                                      executions_ready, GetServicesChief,
                                      DispatcherServices,
-                                     EditDispatcherPrescription,
-                                     DelDispatcherPrescription,
-                                     GetDispatcherPrescription,
-                                     orders_acquainted_dispatcher,
-                                     CreateDispatcherOrders,
-                                     CreateDispatcherPrescription)
+                                     EditDispatcherPrescription,)
 
 app_name = 'book_instructions'
 
@@ -68,19 +63,5 @@ urlpatterns = [
     path('dispatchers/edit/<int:pk>/',
          EditDispatcherPrescription.as_view(),
          name='edit_dispatchers'),
-    path('dispatchers/delete/<int:pk>/',
-         DelDispatcherPrescription.as_view(),
-         name='del_dispatchers'),
-    path('dispatchers/view/<int:pk>/', GetDispatcherPrescription.as_view(),
-         name='view_prescription_dispatchers'),
-    path('order_dispatchers_status/<int:orders_id>/<int:presc_id>/',
-         orders_acquainted_dispatcher,
-         name='order_status_dispatcher'),
-    path('dispatchers/order/create/<int:pk>/',
-         CreateDispatcherOrders.as_view(),
-         name='create_orders_dispatcher'),
-    path('dispatchers/prescription/create/',
-         CreateDispatcherPrescription.as_view(),
-         name='create_dispatcher_prescription'),
 
 ]
