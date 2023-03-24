@@ -591,6 +591,43 @@ class EditDispatcherPrescription(PermissionRequiredMixin,
         return kwargs
 
 
+class GetDispatcherPrescription(PermissionRequiredMixin,
+                                LoginRequiredMixin,
+                                DetailView,
+                                MultipleObjectMixin):
+    """
+    Просмотр предписания диспетчера и Распоряжений.
+    """
+
+    permission_required = 'book_instructions.view_dispatchers'
+    model = Prescription
+    template_name = 'instructions/dispatchers/view_prescription_dispatchers.html'
+    context_object_name = 'view_prescription_dispatchers'
+    allow_empty = True
+    paginate_by = 20
+
+    def get_context_data(self, **kwargs):
+        orders = Orders.objects.filter(prescription_id=self.kwargs['pk'])
+        return super().get_context_data(**kwargs, object_list=orders)
+
+
+@login_required
+@permission_required(
+    'book_instructions.change_orders',
+    'book_instructions.view_orders', raise_exception=True)
+def orders_acquainted_dispatcher(request, orders_id, presc_id):
+    """
+    Ставит отметку о том, что диспетчер ознакомился с распоряжением.
+    """
+    get_orders = get_object_or_404(Orders, pk=orders_id)
+    if request.user.pk == get_orders.responsible_person_id:
+        orders = Orders.objects.filter(pk=orders_id)
+        orders.update(familiarization_date=datetime.now())
+        orders.update(familiarization=True)
+    return redirect('book_instructions:view_prescription_dispatchers',
+                    pk=presc_id)
+
+
 @login_required
 @permission_required(
     'book_instructions.change_orders',

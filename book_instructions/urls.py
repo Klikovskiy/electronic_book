@@ -9,7 +9,9 @@ from book_instructions.views import (HomePage, PrescriptionList,
                                      executions_finalize, EditOrderExecutions,
                                      executions_ready, GetServicesChief,
                                      DispatcherServices,
-                                     EditDispatcherPrescription,)
+                                     EditDispatcherPrescription,
+                                     GetDispatcherPrescription,
+                                     orders_acquainted_dispatcher, )
 
 app_name = 'book_instructions'
 
@@ -63,5 +65,10 @@ urlpatterns = [
     path('dispatchers/edit/<int:pk>/',
          EditDispatcherPrescription.as_view(),
          name='edit_dispatchers'),
+    path('dispatchers/view/<int:pk>/', GetDispatcherPrescription.as_view(),
+         name='view_prescription_dispatchers'),
+    path('order_dispatchers_status/<int:orders_id>/<int:presc_id>/',
+         orders_acquainted_dispatcher,
+         name='order_status_dispatcher'),
 
 ]
