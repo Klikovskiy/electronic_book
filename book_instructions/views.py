@@ -460,6 +460,14 @@ class CreateOrderExecutions(PermissionRequiredMixin,
         obj = form.save(commit=False)
         obj.order_execution = Orders.objects.get(pk=self.kwargs['order_id'])
         if obj.orde_exec_media or obj.order_execution_description:
+            sending_engineer(request=self.request,
+                             user=obj.order_execution.prescription.author,
+                             message_title='Поступил новый отчет',
+                             message_tex=f'Тип - {obj.order_execution.name}, '
+                                         f'Предписание - {obj.order_execution.prescription}, '
+                                         f'Ответственное  лицо - {obj.order_execution.responsible_person}, '
+                                         f'Дата создания отчета - {datetime.now().strftime("%Y-%m-%d %H:%M")}'
+                             )
             return super(CreateOrderExecutions, self).form_valid(form)
         return super(CreateOrderExecutions, self).form_invalid(form)
 
