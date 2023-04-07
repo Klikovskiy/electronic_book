@@ -226,7 +226,7 @@ class CreatePrescription(PermissionRequiredMixin,
 
     def get_success_url(self):
         return reverse_lazy('book_instructions:view_services',
-                            kwargs={'pk': self.kwargs['pk']})
+                            kwargs={'pk': self.kwargs['service_id']})
 
     def get_context_data(self, **kwargs):
         context = {
@@ -247,7 +247,7 @@ class CreatePrescription(PermissionRequiredMixin,
         obj.subdivision = Subdivision.objects.get(
             pk=self.request.user.subdivision_id)
 
-        obj.services = Services.objects.get(id=self.kwargs['pk'])
+        obj.services = Services.objects.get(pk=self.kwargs['service_id'])
         sending_engineer(request=self.request,
                          user=BookUser.objects.get(
                              pk=obj.subdivision.subdivision_engineer_id),
